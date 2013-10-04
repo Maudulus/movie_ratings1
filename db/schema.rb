@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20131003143440) do
+ActiveRecord::Schema.define(version: 20131004190556) do
 
   create_table "actors", force: true do |t|
     t.string   "name",       null: false
@@ -28,6 +28,13 @@ ActiveRecord::Schema.define(version: 20131003143440) do
 
   create_table "genres", force: true do |t|
     t.string   "name",       null: false
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
+  create_table "movie_genres", force: true do |t|
+    t.integer  "movie_id",   null: false
+    t.integer  "genre_id",   null: false
     t.datetime "created_at"
     t.datetime "updated_at"
   end
