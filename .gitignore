@@ -15,5 +15,6 @@
 /log/*.log
 /tmp
 
-# Ignore database credentials
+# Ignore database credentials and environment variables
 /config/database.yml
+/.env

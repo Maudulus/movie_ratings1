@@ -42,7 +42,7 @@ ActiveRecord::Schema.define(version: 20131004190556) do
   create_table "movies", force: true do |t|
     t.string   "title",      null: false
     t.integer  "year",       null: false
-    t.text     "synopsis",   null: false
+    t.text     "synopsis"
     t.integer  "rating",     null: false
     t.datetime "created_at"
     t.datetime "updated_at"
