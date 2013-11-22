@@ -27,7 +27,7 @@ ActiveRecord::Schema.define(version: 20131114163330) do
     t.integer  "actor_id",   null: false
     t.datetime "created_at"
     t.datetime "updated_at"
-    t.string   "character",  null: false
+    t.string   "character"
   end
 
   create_table "genres", force: true do |t|

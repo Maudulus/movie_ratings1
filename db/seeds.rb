@@ -1,25 +1,34 @@
 API_KEY = ENV['ROTTEN_TOMATOES_API_KEY']
 QUERY_DELAY = 1
 
+def query(url)
+  puts "Querying #{url}"
+
+  begin
+    sleep(QUERY_DELAY)
+    return RestClient.get(url)
+  rescue => e
+    puts "Query failed (exception: #{e}), retrying..."
+    retry
+  end
+end
+
 def query_movie(movie_id)
-  sleep(QUERY_DELAY)
   url = "http://api.rottentomatoes.com/api/public/v1.0/movies/#{movie_id}.json?apikey=#{API_KEY}"
   puts "Querying movie info for #{movie_id}..."
-  JSON.parse(RestClient.get(url), symbolize_names: true)
+  JSON.parse(query(url), symbolize_names: true)
 end
 
 def query_cast(movie_id)
-  sleep(QUERY_DELAY)
   url = "http://api.rottentomatoes.com/api/public/v1.0/movies/#{movie_id}/cast.json?apikey=#{API_KEY}"
   puts "Querying cast for #{movie_id}..."
-  JSON.parse(RestClient.get(url), symbolize_names: true)
+  JSON.parse(query(url), symbolize_names: true)
 end
 
 def query_similar_movies(movie_id)
-  sleep(QUERY_DELAY)
   url = "http://api.rottentomatoes.com/api/public/v1.0/movies/#{movie_id}/similar.json?apikey=#{API_KEY}"
   puts "Querying similar movies for #{movie_id}..."
-  JSON.parse(RestClient.get(url), symbolize_names: true)
+  JSON.parse(query(url), symbolize_names: true)
 end
 
 queued_movie_ids = [12907]
@@ -33,36 +42,44 @@ until queued_movie_ids.empty? or movie_count > 200
 
   results = query_movie(next_movie_id)
 
+  studio = nil
+
+  if results[:studio]
+    studio = Studio.find_or_create_by!(name: results[:studio])
+  end
+
+  genre = Genre.find_or_create_by!(name: results[:genres].first)
+
   movie_hash = {
     title: results[:title],
     year: results[:year],
     synopsis: results[:synopsis],
-    rating: results[:ratings][:critics_score]
+    rating: results[:ratings][:critics_score],
+    genre: genre,
+    studio_id: studio && studio.id
   }
 
   puts "found movie #{movie_hash[:title]}"
 
-  movie = Movie.find_by(movie_hash)
-  movie ||= Movie.create!(movie_hash)
-
+  movie = Movie.find_or_create_by!(movie_hash)
   movie_count += 1
-
-  results[:genres].each do |name|
-    genre = Genre.find_by(name: name)
-    genre ||= Genre.create!(name: name)
-
-    movie.genres << genre
-  end
 
   results = query_cast(next_movie_id)
 
   results[:cast].each do |cast_member|
-    actor_hash = { name: cast_member[:name] }
+    actor_hash = {
+      name: cast_member[:name],
+    }
 
-    actor = Actor.find_by(actor_hash)
-    actor ||= Actor.create!(actor_hash)
+    actor = Actor.find_or_create_by!(actor_hash)
 
-    movie.actors << actor unless movie.actors.include?(actor)
+    cast_member_hash = {
+      movie: movie,
+      actor: actor,
+      character: cast_member[:characters].first
+    }
+
+    CastMember.find_or_create_by!(cast_member_hash)
   end
 
   results = query_similar_movies(next_movie_id)
