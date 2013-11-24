@@ -48,7 +48,7 @@ ActiveRecord::Schema.define(version: 20131122205448) do
   end
 
   create_table "queried_movies", force: true do |t|
-    t.integer  "movie_id"
+    t.integer  "movie_id",   null: false
     t.datetime "created_at"
     t.datetime "updated_at"
   end

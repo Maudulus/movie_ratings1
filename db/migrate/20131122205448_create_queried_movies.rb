@@ -1,7 +1,7 @@
 class CreateQueriedMovies < ActiveRecord::Migration
   def change
     create_table :queried_movies do |t|
-      t.integer :movie_id
+      t.integer :movie_id, null: false
       t.timestamps
     end
 
