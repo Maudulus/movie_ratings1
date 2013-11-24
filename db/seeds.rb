@@ -1,6 +1,10 @@
 API_KEY = ENV['ROTTEN_TOMATOES_API_KEY']
 QUERY_DELAY = 1
 
+def already_queued?(movie_id)
+  QueuedMovie.exists?(movie_id: movie_id) or QueriedMovie.exists?(movie_id: movie_id)
+end
+
 def query(url)
   puts "Querying #{url}"
 
@@ -31,62 +35,82 @@ def query_similar_movies(movie_id)
   JSON.parse(query(url), symbolize_names: true)
 end
 
-queued_movie_ids = [12907]
-queried_movie_ids = []
 movie_count = 0
 
-until queued_movie_ids.empty? or movie_count > 200
+INITIAL_SEED = 12907
 
-  next_movie_id = queued_movie_ids.shift
-  next if queried_movie_ids.include?(next_movie_id)
+unless QueriedMovie.exists?(movie_id: INITIAL_SEED) or QueuedMovie.exists?(movie_id: INITIAL_SEED)
+  QueuedMovie.create!(movie_id: INITIAL_SEED)
+end
 
-  results = query_movie(next_movie_id)
+while QueuedMovie.any? and movie_count < 200
 
-  studio = nil
+  queued_movie = QueuedMovie.first
 
-  if results[:studio]
-    studio = Studio.find_or_create_by!(name: results[:studio])
+  if QueriedMovie.exists?(movie_id: queued_movie.movie_id)
+    queued_movie.destroy!
+
+  else
+    results = query_movie(queued_movie.movie_id)
+
+    Movie.transaction do
+      studio = nil
+
+      if results[:studio]
+        studio = Studio.find_or_create_by!(name: results[:studio])
+      end
+
+      genre = Genre.find_or_create_by!(name: results[:genres].first)
+
+      movie_hash = {
+        title: results[:title],
+        year: results[:year].present? ? results[:year] : nil,
+        synopsis: results[:synopsis].present? ? results[:synopsis] : nil,
+        rating: results[:ratings][:critics_score],
+        genre: genre,
+        studio_id: studio && studio.id
+      }
+
+      puts "found movie #{movie_hash[:title]}"
+
+      puts movie_hash
+
+      unless movie_hash[:year].nil?
+        movie = Movie.find_or_create_by!(movie_hash)
+        movie_count += 1
+
+        results = query_cast(queued_movie.movie_id)
+
+        results[:cast].each do |cast_member|
+          actor_hash = {
+            name: cast_member[:name],
+          }
+
+          actor = Actor.find_or_create_by!(actor_hash)
+
+          cast_member_hash = {
+            movie: movie,
+            actor: actor,
+            character: cast_member[:characters].first
+          }
+
+          CastMember.find_or_create_by!(cast_member_hash)
+        end
+      else
+        puts "year is nil, skipping..."
+      end
+
+      results = query_similar_movies(queued_movie.movie_id)
+
+      similar_movie_ids = results[:movies].map { |movie_info| movie_info[:id] }
+      similar_movie_ids.each do |movie_id|
+        unless already_queued?(movie_id)
+          QueuedMovie.create!(movie_id: movie_id)
+        end
+      end
+
+      QueriedMovie.create!(movie_id: queued_movie.movie_id)
+      queued_movie.destroy!
+    end
   end
-
-  genre = Genre.find_or_create_by!(name: results[:genres].first)
-
-  movie_hash = {
-    title: results[:title],
-    year: results[:year],
-    synopsis: results[:synopsis],
-    rating: results[:ratings][:critics_score],
-    genre: genre,
-    studio_id: studio && studio.id
-  }
-
-  puts "found movie #{movie_hash[:title]}"
-
-  movie = Movie.find_or_create_by!(movie_hash)
-  movie_count += 1
-
-  results = query_cast(next_movie_id)
-
-  results[:cast].each do |cast_member|
-    actor_hash = {
-      name: cast_member[:name],
-    }
-
-    actor = Actor.find_or_create_by!(actor_hash)
-
-    cast_member_hash = {
-      movie: movie,
-      actor: actor,
-      character: cast_member[:characters].first
-    }
-
-    CastMember.find_or_create_by!(cast_member_hash)
-  end
-
-  results = query_similar_movies(next_movie_id)
-
-  results[:movies].each do |movie_info|
-    queued_movie_ids << movie_info[:id]
-  end
-
-  queried_movie_ids << next_movie_id
 end
