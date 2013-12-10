@@ -34,12 +34,12 @@ group :doc do
   gem 'sdoc', require: false
 end
 
-group :development do
+group :development, :test do
   gem 'dotenv-rails'
   gem 'rspec-rails'
   gem 'factory_girl'
   gem 'capybara'
-  gem 'shoulda'
+  gem 'shoulda-matchers'
 end
 
 # Use ActiveModel has_secure_password
