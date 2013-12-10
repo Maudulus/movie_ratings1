@@ -36,6 +36,10 @@ end
 
 group :development do
   gem 'dotenv-rails'
+  gem 'rspec-rails'
+  gem 'factory_girl'
+  gem 'capybara'
+  gem 'shoulda'
 end
 
 # Use ActiveModel has_secure_password
