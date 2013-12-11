@@ -1,3 +1,3 @@
-MovieDb::Application.routes.draw do
+MovieRatings::Application.routes.draw do
   resources :movies, only: [:index, :show]
 end

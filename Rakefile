@@ -3,4 +3,4 @@
 
 require File.expand_path('../config/application', __FILE__)
 
-MovieDb::Application.load_tasks
+MovieRatings::Application.load_tasks
