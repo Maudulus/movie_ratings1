@@ -88,7 +88,7 @@ while QueuedMovie.any? and movie_count < 1000
           title: results[:title],
           year: results[:year].present? ? results[:year] : nil,
           synopsis: results[:synopsis].present? ? results[:synopsis] : nil,
-          rating: results[:ratings][:critics_score],
+          rating: results[:ratings][:critics_score] == -1 ? nil : results[:ratings][:critics_score],
           genre: genre,
           studio_id: studio && studio.id
         }
