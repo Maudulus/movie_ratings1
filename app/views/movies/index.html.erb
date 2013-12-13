@@ -1,7 +1,70 @@
 <h1>Movies</h1>
 
-<ul>
-  <% @movies.each do |movie| %>
-    <li><%= link_to movie.title, movie %></li>
+<%= form_tag(movies_path, method: :get) do %>
+  <%= field_set_tag 'Search Movies' do %>
+    <%= hidden_field_tag 'filter', 'search' %>
+
+    <div>
+      <%= label_tag 'search', 'Search' %>
+      <%= text_field_tag 'search', params[:query], placeholder: 'Title or description of movie...', size: 50 %>
+    </div>
+
+    <div><%= submit_tag 'Filter' %></div>
   <% end %>
-</ul>
+<% end %>
+
+<%= form_tag(movies_path, method: :get) do %>
+  <%= field_set_tag 'Highest Rated Movies' do %>
+    <%= hidden_field_tag 'filter', 'highest-rated' %>
+
+    <div>
+      Display the <%= text_field_tag 'count', params[:count] || 10, size: 4 %> highest rated movies:
+    </div>
+
+    <div><%= submit_tag 'Filter' %></div>
+  <% end %>
+<% end %>
+
+<%= form_tag(movies_path, method: :get) do %>
+  <%= field_set_tag 'Lowest Rated Movies' do %>
+    <%= hidden_field_tag 'filter', 'lowest-rated' %>
+
+    <div>
+      Display the <%= text_field_tag 'count', params[:count] || 10, size: 4 %> lowest rated movies:
+    </div>
+
+    <div><%= submit_tag 'Filter' %></div>
+  <% end %>
+<% end %>
+
+<%= form_tag(movies_path, method: :get) do %>
+  <%= field_set_tag 'Most Recent Movies' do %>
+    <%= hidden_field_tag 'filter', 'most-recent' %>
+
+    <div>
+      Display the <%= text_field_tag 'count', params[:count] || 10, size: 4 %> most recent movies:
+    </div>
+
+    <div><%= submit_tag 'Filter' %></div>
+  <% end %>
+<% end %>
+
+<table>
+  <thead>
+    <tr>
+      <th>Title</th>
+      <th>Year Released</th>
+      <th>Rating</th>
+    </tr>
+  </thead>
+
+  <tbody>
+    <% @movies.each do |movie| %>
+    <tr>
+      <td><%= link_to movie.title, movie %></td>
+      <td><%= movie.year %></td>
+      <td><%= movie.rating %></td>
+    </tr>
+    <% end %>
+  </tbody>
+</table>

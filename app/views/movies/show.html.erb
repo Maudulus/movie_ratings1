@@ -3,4 +3,10 @@
 <p>Released in <%= @movie.year %></p>
 <p>Rating: <%= @movie.rating %></p>
 
-<%= link_to 'Movies', movies_path %>
+<% if @movie.synopsis.present? %>
+<p>Synopsis: <%= @movie.synopsis %></p>
+<% else %>
+<p>Not Available</p>
+<% end %>
+
+<%= link_to 'Back to Movies', movies_path %>

@@ -8,4 +8,20 @@ class Movie < ActiveRecord::Base
 
   belongs_to :genre
   belongs_to :studio
+
+  def self.search(query)
+    scoped
+  end
+
+  def self.highest_rated(count)
+    scoped
+  end
+
+  def self.lowest_rated(count)
+    scoped
+  end
+
+  def self.most_recent(count)
+    scoped
+  end
 end
