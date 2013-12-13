@@ -10,18 +10,22 @@ class Movie < ActiveRecord::Base
   belongs_to :studio
 
   def self.search(query)
-    scoped
+    # Replace this with the appropriate ActiveRecord calls...
+    all
   end
 
   def self.highest_rated(count)
-    scoped
+    # Replace this with the appropriate ActiveRecord calls...
+    all
   end
 
   def self.lowest_rated(count)
-    scoped
+    # Replace this with the appropriate ActiveRecord calls...
+    all
   end
 
   def self.most_recent(count)
-    scoped
+    # Replace this with the appropriate ActiveRecord calls...
+    all
   end
 end
