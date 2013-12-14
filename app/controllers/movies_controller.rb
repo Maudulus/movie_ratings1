@@ -17,7 +17,7 @@ class MoviesController < ApplicationController
     elsif params[:filter] == 'most-recent'
       Movie.most_recent(params[:count].to_i)
     elsif params[:filter] == 'search'
-      Movie.search(params[:query])
+      Movie.search(params[:search])
     else
       Movie.all
     end
