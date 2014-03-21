@@ -18,7 +18,7 @@ class Movie < ActiveRecord::Base
 
   def self.highest_rated(count)
     # Replace this with the appropriate ActiveRecord calls...
-    all.order(:rating).last(count)
+    all.where("rating IS NOT NULL").order(:rating).last(count)
   end
 
   def self.lowest_rated(count)
