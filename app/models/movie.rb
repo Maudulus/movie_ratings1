@@ -9,23 +9,25 @@ class Movie < ActiveRecord::Base
   belongs_to :genre
   belongs_to :studio
 
+
+
   def self.search(query)
     # Replace this with the appropriate ActiveRecord calls...
-    all
+    all.where("title LIKE '%#{query}%'")
   end
 
   def self.highest_rated(count)
     # Replace this with the appropriate ActiveRecord calls...
-    all
+    all.order(:rating).last(count)
   end
 
   def self.lowest_rated(count)
     # Replace this with the appropriate ActiveRecord calls...
-    all
+    all.order(:rating).first(count)
   end
 
   def self.most_recent(count)
     # Replace this with the appropriate ActiveRecord calls...
-    all
+    all.order(:year).last(count)
   end
 end
