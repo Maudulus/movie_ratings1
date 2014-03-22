@@ -40,6 +40,7 @@ group :development, :test do
   gem 'factory_girl'
   gem 'capybara'
   gem 'shoulda-matchers'
+  gem 'quiet_assets'
 end
 
 # Use ActiveModel has_secure_password
