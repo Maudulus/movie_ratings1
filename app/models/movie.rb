@@ -13,12 +13,12 @@ class Movie < ActiveRecord::Base
 
   def self.search(query)
     # Replace this with the appropriate ActiveRecord calls...
-    all.where("title LIKE '%#{query}%'")
+    all.where("title iLIKE '%#{query}%' OR synopsis iLIKE '%#{query}%'")
   end
 
   def self.highest_rated(count)
     # Replace this with the appropriate ActiveRecord calls...
-    all.where("rating IS NOT NULL").order(:rating).last(count)
+    all.where("rating IS NOT NULL").order(rating: :desc).last(count)
   end
 
   def self.lowest_rated(count)
@@ -28,6 +28,6 @@ class Movie < ActiveRecord::Base
 
   def self.most_recent(count)
     # Replace this with the appropriate ActiveRecord calls...
-    all.order(:year).last(count)
+    all.order(year: :desc).last(count)
   end
 end
